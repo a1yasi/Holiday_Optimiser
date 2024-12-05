@@ -4,11 +4,13 @@ import requests
 import json
 from datetime import datetime, timedelta
 
+
 client = AzureOpenAI(
 	api_key = os.getenv("AZURE_KEY"),
 	api_version = "2023-10-01-preview",
 	azure_endpoint = os.getenv("AZURE_ENDPOINT")
 )
+
 
 def get_holidays(year,country_code):
 	url = f"https://date.nager.at/api/v3/PublicHolidays/{year}/{country_code}"
@@ -16,9 +18,11 @@ def get_holidays(year,country_code):
 	data = response.json()
 	return data
 
+
 #filter public holiday to specific month
 def filter_holidays_by_month(holidays, month):
 	return [holiday for holiday in holidays if datetime.strptime(holiday["date"], "%Y-%m-%d").month == month]
+
 
 #suggest leave days for vacation
 # genarate vacation suggest based on public holidays and leave days 
@@ -26,6 +30,7 @@ def genarate_vacation_suggestions(leave_days_available, holidays, min_days=4, ma
 	suggestions = []
 	for holiday in holidays:
 		holiday_date = datetime.strptime(holiday["date"],"%Y-%m-%d")
+
 
 #short vacation 
 #calculate the start and end date for short vacation
@@ -38,10 +43,13 @@ def genarate_vacation_suggestions(leave_days_available, holidays, min_days=4, ma
 
 	return suggestions
 
+
 #create vacation suggestion with start and end date
 def suggest_vacation(holiday_date, leave_days, vacation_type):
 	start_date = holiday_date - timedelta(days=leave_days // 2)
 	end_date = holiday_date + timedelta(days=leave_days // 2)
+
+
 	return{
 		"type": vacation_type,
 		"start_date": start_date.strftime("%Y-%m-%d"),
@@ -49,23 +57,60 @@ def suggest_vacation(holiday_date, leave_days, vacation_type):
 		"days_needed": leave_days,
 	}
 
+
+#funcation to find the best alternative month with most holiday
+#group holidays by month  
+def find_month_long_vacation(holidays, current_month):
+	month_holiday_count = {}
+	for holiday in holidays:
+		holiday_date = datetime.strptime(holiday["date"], "%Y-%m-%d")
+		month = holiday_date.month
+#ignore the current month
+		if month != current_month:
+			month_holiday_count[month] = month_holiday_count.get(month, 0) + 1
+
+#find the month with the most holidays
+		if month_holiday_count:
+			best_month = max(month_holiday_count, key=month_holiday_count.get)
+			return best_month, month_holiday_count[best_month]
+			return None,0
+
+
+
+
 #genarate vacation plan and combaining holidays and leave days
 def create_vacation_plan(leave_days_available, year, country_code="GB", month=None):
 	holidays = get_holidays(year, country_code)
 
 	if not holidays:
-		return "No public holidays found for the {year}"
+		return "No public holidays found for the year {year}"
 
+#filter holiday for the request month 
 	if month:
 		holidays = filter_holidays_by_month(holidays, month)
 		if not holidays:
 			return "No public holidays found for {month}/{year}."
 
-	
+	suggestions = genarate_vacation_suggestions(leave_days_available, holidays_in_month)
+
+#if leave days are more than 7, suggesr better month 
+	if leave_days_available > 7:
+		best_month, holiday_count = find_month_long_vacation(holidays, month)
+		if best_month:
+			return{
+				"current_month": datetime(year, month, 1).strftime("%B"),
+                "current_month_suggestions": suggestions,
+                "alternative_month": datetime(year, best_month, 1).strftime("%B"),
+                "alternative_month_holidays": holiday_count
+			}
+
+		return {"current_month": datetime(year, month, 1).strftime("%B"), "suggestions": suggestions}
+
 
 	return genarate_vacation_suggestions(leave_days_available, holidays)
 
-print(create_vacation_plan(4, 2025, "GB", 6))
+
+
 
 messages = [
 	{"role":"system","content": "You are an assistant helping users plan vacations around public holidays."},
@@ -107,10 +152,13 @@ functions = [
 
 ]
 
+
+
 response = client.chat.completions.create(model="GPT-4", messages = messages)
 #print(response)
 
 gpt_tools = response.choices[0].message.tool_calls
+
 
 if gpt_tools:
 	for gpt_tool in gpt_tools:
