@@ -91,9 +91,9 @@ def create_vacation_plan(leave_days_available, year, country_code="GB", month=No
 		if not holidays:
 			return "No public holidays found for {month}/{year}."
 
-	suggestions = genarate_vacation_suggestions(leave_days_available, holidays_in_month)
+	suggestions = genarate_vacation_suggestions(leave_days_available, holidays)
 
-#if leave days are more than 7, suggesr better month 
+#if leave days are more than 7, suggest better month 
 	if leave_days_available > 7:
 		best_month, holiday_count = find_month_long_vacation(holidays, month)
 		if best_month:
@@ -113,7 +113,7 @@ def create_vacation_plan(leave_days_available, year, country_code="GB", month=No
 
 
 messages = [
-	{"role":"system","content": "You are an assistant helping users plan vacations around public holidays."},
+	{"role":"system","content": "You are an assistant helping users plan vacations around public holidays.  You should not provide advice on external factors like pandemics or travel restrictions."},
 	{"role": "user", "content": "I have 10 annual leave days left. suggest how i can maximise my vacation time in June in the GB."}
 
 ]
