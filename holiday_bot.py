@@ -66,3 +66,60 @@ def create_vacation_plan(leave_days_available, year, country_code="GB", month=No
 	return genarate_vacation_suggestions(leave_days_available, holidays)
 
 print(create_vacation_plan(4, 2025, "GB", 6))
+
+messages = [
+	{"role":"system","content": "You are an assistant helping users plan vacations around public holidays."},
+	{"role": "user", "content": "I have 10 annual leave days left. suggest how i can maximise my vacation time in June in the GB."}
+
+]
+
+functions = [
+	{
+		"type":"funcation",
+		"function": {
+			"name": "create_vacation_plan",
+			"description":"Suggest vacation plans based on public holidays, available leave days, and a specific month.",
+			"parameters":{
+				"type":"object",
+				"properties":{
+					"leave_days_available":{
+						"type": "integer",
+						"description": "Number of leave days the user has available"
+					},
+					"year": {"type": "integer","description":"Year for which vacation planning is needed."},
+					"country_code":{
+						"type": "string",
+						"description": "Country code to find public holoidays.",
+						"default":"GB"
+					},
+					"month": {
+						"type":"integer",
+						"description":"Specific month for which vacation planning is needed (1-12)."
+
+					},
+
+				},
+				"required":["leave_days_available","year"]
+
+			}
+		}
+	}
+
+]
+
+response = client.chat.completions.create(model="GPT-4", messages = messages)
+#print(response)
+
+gpt_tools = response.choices[0].message.tool_calls
+
+if gpt_tools:
+	for gpt_tool in gpt_tools:
+		function_name = gpt_tool.function.name
+		function_parameters = json.loads(gpt_tool.funcation.arguments)
+
+	if funcation_name == "generate_holiday_suggestions_message":
+		holiday_suggestions_message = generate_holiday_suggestions_message()
+		print(f"Holiday suggestions:\n{holiday_suggestions_message}")
+
+else:
+	print(response.choices[0].message.content)
