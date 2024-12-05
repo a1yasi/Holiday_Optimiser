@@ -37,3 +37,32 @@ def genarate_vacation_suggestions(leave_days_available, holidays, min_days=4, ma
 			suggestions.append(suggest_vacation(holiday_date, max_days, "long vacation"))
 
 	return suggestions
+
+#create vacation suggestion with start and end date
+def suggest_vacation(holiday_date, leave_days, vacation_type):
+	start_date = holiday_date - timedelta(days=leave_days // 2)
+	end_date = holiday_date + timedelta(days=leave_days // 2)
+	return{
+		"type": vacation_type,
+		"start_date": start_date.strftime("%Y-%m-%d"),
+		"end_date": end_date.strftime("%Y-%m-%d"),
+		"days_needed": leave_days,
+	}
+
+#genarate vacation plan and combaining holidays and leave days
+def create_vacation_plan(leave_days_available, year, country_code="GB", month=None):
+	holidays = get_holidays(year, country_code)
+
+	if not holidays:
+		return "No public holidays found for the {year}"
+
+	if month:
+		holidays = filter_holidays_by_month(holidays, month)
+		if not holidays:
+			return "No public holidays found for {month}/{year}."
+
+	
+
+	return genarate_vacation_suggestions(leave_days_available, holidays)
+
+print(create_vacation_plan(4, 2025, "GB", 6))
