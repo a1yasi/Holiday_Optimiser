@@ -26,3 +26,14 @@ def genarate_vacation_suggestions(leave_days_available, holidays, min_days=4, ma
 	suggestions = []
 	for holiday in holidays:
 		holiday_date = datetime.strptime(holiday["date"],"%Y-%m-%d")
+
+#short vacation 
+#calculate the start and end date for short vacation
+		if leave_days_available >= min_days:
+			suggestions.append(suggest_vacation(holiday_date,min_days, "short vacation"))
+
+#long vacation calcutate the start and end date for long vacation
+		if leave_days_available >= max_days:
+			suggestions.append(suggest_vacation(holiday_date, max_days, "long vacation"))
+
+	return suggestions
