@@ -16,4 +16,13 @@ def get_holidays(year,country_code):
 	data = response.json()
 	return data
 
+#filter public holiday to specific month
+def filter_holidays_by_month(holidays, month):
+	return [holiday for holiday in holidays if datetime.strptime(holiday["date"], "%Y-%m-%d").month == month]
 
+#suggest leave days for vacation
+# genarate vacation suggest based on public holidays and leave days 
+def genarate_vacation_suggestions(leave_days_available, holidays, min_days=4, max_days=14):
+	suggestions = []
+	for holiday in holidays:
+		holiday_date = datetime.strptime(holiday["date"],"%Y-%m-%d")
