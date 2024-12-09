@@ -17,11 +17,15 @@ def index_post():
 	month = int(request.form['month'])
 
 	vacation_plan = create_vacation_plan(leave_days_available, year, country_code, month)
+
 	
 
 	return render_template('index.html', 
 		leave_days_available=leave_days_available, 
 		year=year, 
 		country_code=country_code, 
-		month=month, 
-		vacation_plan=vacation_plan)
+		month=month,
+		current_month=vacation_plan.get("current_month"),
+		current_suggestions = vacation_plan.get("suggestions"),
+		
+		)

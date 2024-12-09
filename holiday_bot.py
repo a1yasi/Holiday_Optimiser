@@ -29,63 +29,69 @@ def filter_holidays_by_month(holidays, month):
 	]
 
 
-
-#suggest leave days for vacation
-# genarate vacation suggest based on public holidays and leave days 
-def generate_vacation_suggestions(leave_days_available, holidays):
-	suggestions = []
-	for holiday in holidays:
-		holiday_date = datetime.strptime(holiday["date"],"%Y-%m-%d")
-
-
-#short vacation 
-#calculate the start and end date for short vacation
-		if leave_days_available >= 1:
-			suggestions.append(suggest_vacation(holiday_date, leave_days_available, f"{leave_days_available}-day vacation"))
-
-#long vacation calcutate the start and end date for long vacation
-		# if leave_days_available >= max_days:
-		# 	suggestions.append(suggest_vacation(holiday_date, max_days, "long vacation"))
-
-	return suggestions
+#calculating working days excluding weekend and public holiday
+def calculate_working_days(start, end, holidays):
+	current_date = start
+	working_days = 0
+	while current_date <= end:
+		if current_date.weekday()<5 and current_date.strftime("%Y-%m-%d") not in holidays:
+			working_days += 1
+		current_date += timedelta(days=1)
+	return working_days
 
 
 #create vacation suggestion with start and end date
-def suggest_vacation(holiday_date, leave_days, vacation_type):
+def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, public_holidays):
 	start_date = holiday_date - timedelta(days=leave_days // 2)
 	end_date = holiday_date + timedelta(days=leave_days // 2)
+	total_days_off = (end_date - start_date).days + 1 
+
+	days_needed = calculate_working_days(start_date, end_date, public_holidays)
+
+
+	explanation = (
+		f"Take {leave_days} leave days from {start_date.strftime('%Y-%m-%d')} to "
+		f"{end_date.strftime('%Y-%m-%d')} around the {holiday_name} holiday to maximize "
+		f"your vacation to a total of {total_days_off} days off, including weekends and public holidays."
+	)
+
 	return{
 		"type": vacation_type,
 		"start_date": start_date.strftime("%Y-%m-%d"),
 		"end_date": end_date.strftime("%Y-%m-%d"),
-		"days_needed": leave_days,
-		"explanation": f"By taking {leave_days} leave days around the holiday on {holiday_date.strftime('%Y-%m-%d')}, "
-                       f"you can maximize your time off to {leave_days + 1} days."
-		 
+		"days_needed": days_needed,
+		"total_days_off": total_days_off,
+		"holiday_name": holiday_name,
+		"explanation":explanation,
 	}
 
+def sort_by_total_days_off(suggestion):
+	return suggestion["total_days_off"]
 
-#funcation to find the best alternative month with most holiday
-#group holidays by month  
-def find_month_long_vacation(holidays, current_month):
-	month_holiday_count = {}
 
+
+#suggest leave days for vacation
+# genarate vacation suggest based on public holidays and leave days 
+def generate_vacation_suggestions(leave_days_available, holidays, country_code):
+	suggestions = []
+
+	public_holidays = [holiday["date"] for holiday in holidays]
 	for holiday in holidays:
-		holiday_date = datetime.strptime(holiday["date"], "%Y-%m-%d")
-		month = holiday_date.month
+		holiday_date = datetime.strptime(holiday["date"],"%Y-%m-%d")
+		holiday_name = holiday["name"]
 
-#ignore the current month
-		if month != current_month:
-			month_holiday_count[month]  = month_holiday_count.get(month, 0) + 1
+
+#short vacation 
+#calculate the start and end date for short vacation
+		for leave_days in [leave_days_available, leave_days_available - 1]:
+			if leave_days > 0:
+				suggestion = suggest_vacation(holiday_date, leave_days, f"{leave_days}-day vacation", holiday_name, public_holidays)
+				suggestions.append(suggestion)
+
 		
-
-#find the month with the most holidays
-	if month_holiday_count:
-		best_month = max(month_holiday_count, key=month_holiday_count.get)
-		return best_month, month_holiday_count[best_month]
-
-	return None, None
-
+	#suggestions.sort(key=sort_by_total_days_off, reverse=True)
+	return suggestions[:2]
+	
 
 
 #genarate vacation plan and combaining holidays and leave days
@@ -102,28 +108,34 @@ def create_vacation_plan(leave_days_available, year, country_code, month=None):
 	if month:
 		month_holidays = filter_holidays_by_month(holidays, month)
 		if month_holidays:
-			current_suggestions = generate_vacation_suggestions(leave_days_available, month_holidays)
+			current_suggestions = generate_vacation_suggestions(leave_days_available, month_holidays, country_code)
+		else:
+			return {"message": f"No public holidays found in month {month}."}
 		
 		
-	alternative_month, _ = find_month_long_vacation(holidays, month or 0)
-	alternative_suggestions = []
-	if alternative_month:
-		alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
-		alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays)
-
-
-	return{
+	return {
 		"current_month": datetime(year, month, 1).strftime("%B") if month else None,
 		"suggestions": current_suggestions,
-		"alternative_month": datetime(year, alternative_month, 1).strftime("%B") if alternative_month else None,
-		"alternative_suggestions": alternative_suggestions
-	}
+    }	
+	# alternative_month, _ = find_month_long_vacation(holidays, month or 0)
+	# alternative_suggestions = []
+	# if alternative_month:
+	# 	alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
+	# 	alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays)
+
+
+	# return{
+	# 	"current_month": datetime(year, month, 1).strftime("%B") if month else None,
+	# 	"suggestions": current_suggestions,
+	# 	"alternative_month": datetime(year, alternative_month, 1).strftime("%B") if alternative_month else None,
+	# 	"alternative_suggestions": alternative_suggestions
+	# }
 
 
 
 messages = [
 	{"role":"system","content": "You are an assistant helping users plan vacations around public holidays."},
-	{"role": "user", "content": "I have {leave_days_available} annual leave days left. Suggest how I can maximize my vacation time in {month} in {country_code}. The year is {year}."}
+	{"role": "user", "content": "I have {leave_days_available} annual leave days left. Suggest how I can maximize my vacation time in {month} in {country_code}. The year is {year}."},
 
 ]
 
@@ -171,7 +183,7 @@ gpt_tools = response.choices[0].message.tool_calls
 if gpt_tools:
 	for gpt_tool in gpt_tools:
 		function_name = gpt_tool.function.name
-		function_parameters = gpt_tool.funcation.arguments
+		function_parameters = gpt_tool.function.arguments
 
 		if function_name == "create_vacation_plan":
 			leave_days_available = function_parameters.get("leave_days_available")

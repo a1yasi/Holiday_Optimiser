@@ -1,93 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vacation Planner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
+            margin: 20px;
+            background-color: #f0f8ff;
+        }
+        h1 {
+            color: #2c3e50;
         }
         form {
-            background: #fff;
-            padding: 20px;
             margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"],
+        input[type="text"] {
+            width: 250px;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ffffff;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 5px;
         }
-        input, select, button {
-            margin-bottom: 10px;
-            padding: 10px;
-            width: 100%;
-        }
-        .results {
-            background: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        .error {
-            color: red;
+        li strong {
+            color: #2c3e50;
         }
     </style>
 </head>
 <body>
     <h1>Vacation Planner</h1>
 
+    <!-- Input Form -->
     <form method="POST">
         <label for="leave_days_available">Available Leave Days:</label>
-        <input type="number" id="leave_days_available" name="leave_days_available" required>
+        <input type="number" id="leave_days_available" name="leave_days_available" placeholder="e.g., 5" required>
 
         <label for="year">Year:</label>
-        <input type="number" id="year" name="year" required>
+        <input type="number" id="year" name="year" placeholder="e.g., 2024" required>
 
         <label for="country_code">Country Code:</label>
-        <input type="text" id="country_code" name="country_code" required>
+        <input type="text" id="country_code" name="country_code" placeholder="e.g., US" required>
 
-        <label for="month">Month (1-12):</label>
-        <input type="number" id="month" name="month" min="1" max="12" required>
+        <label for="month">Month:</label>
+        <input type="number" id="month" name="month" placeholder="e.g., 12 (December)" required>
 
-        <button type="submit">Plan My Vacation</button>
+        <input type="submit" value="Generate Vacation Plan">
     </form>
 
-    {% if error %}
-        <div class="error">
-            <p>Error: {{ error }}</p>
-        </div>
-    {% endif %}
-
-    {% if vacation_plan %}
-        <div class="results">
-            <h2>Vacation Suggestions</h2>
-            <h3>For {{ vacation_plan.current_month }}:</h3>
-            <ul>
-                {% for suggestion in vacation_plan.suggestions %}
-                    <li>
-                        <strong>{{ suggestion.type.title() }}</strong>: 
-                        From {{ suggestion.start_date }} to {{ suggestion.end_date }} 
-                        ({{ suggestion.days_needed }} leave days)<br>
-                        <em>{{ suggestion.explanation }}</em>
-                    </li>
-                {% endfor %}
-            </ul>
-
-            {% if vacation_plan.alternative_month %}
-                <h3>Alternative Month ({{ vacation_plan.alternative_month }}):</h3>
-                <ul>
-                    {% for suggestion in vacation_plan.alternative_suggestions %}
-                        <li>
-                            <strong>{{ suggestion.type.title() }}</strong>: 
-                            From {{ suggestion.start_date }} to {{ suggestion.end_date }} 
-                            ({{ suggestion.days_needed }} leave days)<br>
-                            <em>{{ suggestion.explanation }}</em>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+    <!-- Suggestions Section -->
+    {% if current_suggestions %}
+        <h2>Suggestions for {{ current_month }}:</h2>
+        <ul>
+            {% for suggestion in current_suggestions %}
+                <li>
+                    <strong>Type:</strong> {{ suggestion.type }}<br>
+                    <strong>Start Date:</strong> {{ suggestion.start_date }}<br>
+                    <strong>End Date:</strong> {{ suggestion.end_date }}<br>
+                    <strong>Days Needed:</strong> {{ suggestion.days_needed }} working days<br>
+                    <strong>Total Days Off:</strong> {{ suggestion.total_days_off }} days (including weekends)<br>
+                    <strong>Holiday Name:</strong> {{ suggestion.holiday_name }}<br>
+                    <strong>Explanation:</strong> {{ suggestion.explanation }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No vacation suggestions available for the selected month.</p>
     {% endif %}
 </body>
 </html>
