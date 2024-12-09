@@ -92,6 +92,20 @@ def generate_vacation_suggestions(leave_days_available, holidays, country_code):
 	#suggestions.sort(key=sort_by_total_days_off, reverse=True)
 	return suggestions[:2]
 	
+def find_alternative_month_with_holiday(holidays, current_month):
+	months_with_holidays = set(datetime.strptime(holiday["date"], "%Y-%m-%d").month for holiday in holidays)
+	next_month = (current_month % 12) + 1
+	if next_month in months_with_holidays:
+		return next_month
+
+	for month in range(1, 13):
+		adjusted_month = (next_month + month - 1) % 12 + 1
+		if adjusted_month in months_with_holidays:
+			return adjusted_month
+
+	return None
+
+
 
 
 #genarate vacation plan and combaining holidays and leave days
@@ -110,26 +124,24 @@ def create_vacation_plan(leave_days_available, year, country_code, month=None):
 		if month_holidays:
 			current_suggestions = generate_vacation_suggestions(leave_days_available, month_holidays, country_code)
 		else:
-			return {"message": f"No public holidays found in month {month}."}
-		
+			alternative_month = find_alternative_month_with_holiday(holidays, month)
+			if alternative_month:
+				alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
+				alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays, country_code)
+				return {
+					"message": f"No public holidays found in {datetime(year, month, 1).strftime('%B')}.",
+					"alternative_month": datetime(year, alternative_month, 1).strftime("%B"),
+					"alternative_suggestions": alternative_suggestions
+					}
+
+			else:
+				return {"message": f"No public holidays found in {datetime(year, month, 1).strftime('%B')} and no alternative month available."}
 		
 	return {
 		"current_month": datetime(year, month, 1).strftime("%B") if month else None,
 		"suggestions": current_suggestions,
     }	
-	# alternative_month, _ = find_month_long_vacation(holidays, month or 0)
-	# alternative_suggestions = []
-	# if alternative_month:
-	# 	alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
-	# 	alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays)
 
-
-	# return{
-	# 	"current_month": datetime(year, month, 1).strftime("%B") if month else None,
-	# 	"suggestions": current_suggestions,
-	# 	"alternative_month": datetime(year, alternative_month, 1).strftime("%B") if alternative_month else None,
-	# 	"alternative_suggestions": alternative_suggestions
-	# }
 
 
 
@@ -167,8 +179,8 @@ functions = [
 				"required":["leave_days_available","year","country_code"]
 
 			}
-		}
-	#}
+		#}
+	}
 
 ]
 

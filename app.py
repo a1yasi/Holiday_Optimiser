@@ -27,5 +27,7 @@ def index_post():
 		month=month,
 		current_month=vacation_plan.get("current_month"),
 		current_suggestions = vacation_plan.get("suggestions"),
+		alternative_month=vacation_plan.get("alternative_month"),
+		alternative_suggestions=vacation_plan.get("alternative_suggestions")
 		
 		)
