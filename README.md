@@ -17,7 +17,7 @@ A web application that helps users maximise their annual leave by suggesting opt
 
 ## How to use 
 
-!(C:\Users\Alyasi\Documents\Homework\coding\sc-readme\screencapture-127-0-0-1-5000-2024-12-10-17_20_12.png)![screencapture-127-0-0-1-5000-2024-12-10-17_18_59](C:\Users\Alyasi\Documents\Homework\coding\sc-readme\screencapture-127-0-0-1-5000-2024-12-10-17_18_59.png)
+![1](gh_assest/1.png
 
 - **Enter the Information**
   Provide the month and year for which you want vacation suggestions.
