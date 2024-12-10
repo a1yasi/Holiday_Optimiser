@@ -102,6 +102,18 @@ font-size: 1rem;
 margin: 0 50px;
 }
 
+select {
+padding: 10px;
+width: 70%;
+border: 1px solid #ccc;
+border-radius: 16px;
+color: #6c757d;
+font-size: 1rem;
+margin: 0 50px;
+background-color: #fff;
+}
+
+
 .submit-container {
     text-align: center;
     margin-top: 40px;

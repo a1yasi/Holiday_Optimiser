@@ -80,6 +80,7 @@ def sort_by_total_days_off(suggestion):
 # genarate vacation suggest based on public holidays and leave days 
 def generate_vacation_suggestions(leave_days_available, holidays, country_code, max_leave_days):
 	suggestions = []
+	seen_explanations = set()
 
 	public_holidays = [holiday["date"] for holiday in holidays]
 	for holiday in holidays:
@@ -91,17 +92,16 @@ def generate_vacation_suggestions(leave_days_available, holidays, country_code, 
 		for leave_days in [leave_days_available, leave_days_available - 1]:
 			if leave_days > 0:
 				suggestion = suggest_vacation(holiday_date, leave_days, f"{leave_days}-day vacation", holiday_name, public_holidays, max_leave_days)
+
+			if suggestion['explanation'] not in seen_explanations:
 				suggestions.append(suggestion)
+				seen_explanations.add(suggestion['explanation'])
 
-		if len(suggestions) == 2:
-			if suggestions[0] != suggestions[1]:
-				return suggestions
-			else:
-				return [suggestions[0]]
-		elif len(suggestions)==1:
-			return [suggestions[0]]
 
-	return []
+	return suggestions
+
+
+
 	
 def find_alternative_month_with_holiday(holidays, current_month):
 	months_with_holidays = set(datetime.strptime(holiday["date"], "%Y-%m-%d").month for holiday in holidays)
@@ -138,7 +138,7 @@ def create_vacation_plan(leave_days_available, year, country_code, month=None):
 			alternative_month = find_alternative_month_with_holiday(holidays, month)
 			if alternative_month:
 				alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
-				alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays, country_code, max_leave_days)
+				alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays, country_code, leave_days_available)
 				return {
 					"message": f"No public holidays found in {datetime(year, month, 1).strftime('%B')}.",
 					"alternative_month": datetime(year, alternative_month, 1).strftime("%B"),
