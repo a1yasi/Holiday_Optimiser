@@ -1,66 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vacation Planner</title>
-    <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vacation Planner</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header class="header">
-        <h1>Vacation Planner</h1>
-    </header>
-    <main class="container">
-        <form action="/" method="POST" class="form">
-            <div class="form-group">
-                <label for="leave_days_available">Available Annual Leave</label>
-                <input type="number" id="leave_days_available" name="leave_days_available" required>
-            </div>
-            <div class="form-group">
-                <label for="year">Year</label>
-                <input type="number" id="year" name="year" value="2024" required>
-            </div>
-            <div class="form-group">
-                <label for="country_code">Country Code</label>
-                <input type="text" id="country_code" name="country_code" maxlength="2" required>
-            </div>
-            <div class="form-group">
-                <label for="month">Month (1-12)</label>
-                <input type="number" id="month" name="month" min="1" max="12">
-            </div>
-            <button type="submit" class="btn">Submit</button>
-        </form>
 
+<header class="header">
+<h1>Vacation Planner</h1>
+</header>
+<main class="container"> 
+<div class="left-side">
+    <form action="/" method="POST" class="form">
+        <div class="form-group">
+            <label for="leave_days_available">Available Annual Leave</label>
+            <input type="number" id="leave_days_available" name="leave_days_available" required>
+        </div>
+        <div class="form-group">
+            <label for="year">Year</label>
+            <input type="number" id="year" name="year" value="2025" required>
+        </div>
+        <div class="form-group">
+            <label for="country_code">Country Code</label>
+            <input type="text" id="country_code" name="country_code" maxlength="2" required>
+        </div>
+        <div class="form-group">
+            <label for="month">Month (1-12)</label>
+            <input type="number" id="month" name="month" min="1" max="12">
+        </div>
+        <button type="submit" class="btn">Submit</button>
+    </form>
+</div>
+
+<div class="right-side">
+    <section class="results">
         {% if current_month %}
-        <section class="results">
-            <h2>Vacation Suggestions for {{ current_month }}</h2>
-            <ul>
-                {% for suggestion in current_suggestions %}
-                <li>
-                    <strong>{{ suggestion.holiday_name }}</strong><br>
-                    {{ suggestion.explanation }}
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
+        <h2>Vacation Suggestions for {{ current_month }}</h2>
+        <ul>
+            {% for suggestion in current_suggestions %}
+            <li>
+                <strong>{{ suggestion.holiday_name }}</strong><br>
+                {{ suggestion.explanation }}
+            </li>
+            {% endfor %}
+        </ul>
         {% endif %}
 
         {% if alternative_month %}
-        <section class="results">
-            <h2>Alternative Suggestions for {{ alternative_month }}</h2>
-            <ul>
-                {% for suggestion in alternative_suggestions %}
-                <li>
-                    <strong>{{ suggestion.holiday_name }}</strong><br>
-                    {{ suggestion.explanation }}
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
+        <h2>Alternative Suggestions for {{ alternative_month }}</h2>
+        <ul>
+            {% for suggestion in alternative_suggestions %}
+            <li>
+                <strong>{{ suggestion.holiday_name }}</strong><br>
+                {{ suggestion.explanation }}
+            </li>
+            {% endfor %}
+        </ul>
         {% endif %}
-    </main>
-    <footer class="footer">
-        <p>Vacation Planner by alyasi.</p>
-    </footer>
+    </section>
+</div>
+</main>
+<footer class="footer">
+<p>Vacation Planner by alyasi.</p>
+</footer>
 </body>
 </html>

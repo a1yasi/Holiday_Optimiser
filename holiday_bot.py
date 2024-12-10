@@ -193,7 +193,6 @@ functions = [
 
 
 response = client.chat.completions.create(model="GPT-4", messages = messages, functions=functions)
-#print(response)
 
 gpt_tools = response.choices[0].message.tool_calls
 
