@@ -17,7 +17,9 @@ A web application that helps users maximise their annual leave by suggesting opt
 
 ## How to use 
 
-![1](gh_assest/1.png
+![1](C:\Users\Alyasi\AllClassDemo\Public_holiday_api\gh_asset\1.png)
+
+
 
 - **Enter the Information**
   Provide the month and year for which you want vacation suggestions.
