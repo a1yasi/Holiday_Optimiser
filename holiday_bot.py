@@ -41,16 +41,21 @@ def calculate_working_days(start, end, holidays):
 
 
 #create vacation suggestion with start and end date
-def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, public_holidays):
-	start_date = holiday_date - timedelta(days=leave_days // 2)
+def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, public_holidays, max_leave_days):
+	start_date = holiday_date - timedelta(days=max_leave_days // 2)
 	end_date = holiday_date + timedelta(days=leave_days // 2)
-	total_days_off = (end_date - start_date).days + 1 
+	
 
-	days_needed = calculate_working_days(start_date, end_date, public_holidays)
+	working_days_needed = calculate_working_days(start_date, end_date, public_holidays)
 
+	if working_days_needed > max_leave_days:
+		end_date = start_date + timedelta(days=max_leave_days - 1)
+		working_days_needed = calculate_working_days(start_date, end_date, public_holidays)
+
+	total_days_off = (end_date - start_date).days + 1
 
 	explanation = (
-		f"Take {leave_days} leave days from {start_date.strftime('%Y-%m-%d')} to "
+		f"Take {working_days_needed} leave days from {start_date.strftime('%Y-%m-%d')} to "
 		f"{end_date.strftime('%Y-%m-%d')} around the {holiday_name} holiday to maximize "
 		f"your vacation to a total of {total_days_off} days off, including weekends and public holidays."
 	)
@@ -59,11 +64,12 @@ def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, publ
 		"type": vacation_type,
 		"start_date": start_date.strftime("%Y-%m-%d"),
 		"end_date": end_date.strftime("%Y-%m-%d"),
-		"days_needed": days_needed,
+		"days_needed": working_days_needed,
 		"total_days_off": total_days_off,
 		"holiday_name": holiday_name,
 		"explanation":explanation,
 	}
+
 
 def sort_by_total_days_off(suggestion):
 	return suggestion["total_days_off"]
@@ -72,7 +78,7 @@ def sort_by_total_days_off(suggestion):
 
 #suggest leave days for vacation
 # genarate vacation suggest based on public holidays and leave days 
-def generate_vacation_suggestions(leave_days_available, holidays, country_code):
+def generate_vacation_suggestions(leave_days_available, holidays, country_code, max_leave_days):
 	suggestions = []
 
 	public_holidays = [holiday["date"] for holiday in holidays]
@@ -85,7 +91,7 @@ def generate_vacation_suggestions(leave_days_available, holidays, country_code):
 #calculate the start and end date for short vacation
 		for leave_days in [leave_days_available, leave_days_available - 1]:
 			if leave_days > 0:
-				suggestion = suggest_vacation(holiday_date, leave_days, f"{leave_days}-day vacation", holiday_name, public_holidays)
+				suggestion = suggest_vacation(holiday_date, leave_days, f"{leave_days}-day vacation", holiday_name, public_holidays, max_leave_days)
 				suggestions.append(suggestion)
 
 		
@@ -122,12 +128,12 @@ def create_vacation_plan(leave_days_available, year, country_code, month=None):
 	if month:
 		month_holidays = filter_holidays_by_month(holidays, month)
 		if month_holidays:
-			current_suggestions = generate_vacation_suggestions(leave_days_available, month_holidays, country_code)
+			current_suggestions = generate_vacation_suggestions(leave_days_available, month_holidays, country_code, leave_days_available)
 		else:
 			alternative_month = find_alternative_month_with_holiday(holidays, month)
 			if alternative_month:
 				alt_month_holidays = filter_holidays_by_month(holidays, alternative_month)
-				alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays, country_code)
+				alternative_suggestions = generate_vacation_suggestions(leave_days_available, alt_month_holidays, country_code, max_leave_days)
 				return {
 					"message": f"No public holidays found in {datetime(year, month, 1).strftime('%B')}.",
 					"alternative_month": datetime(year, alternative_month, 1).strftime("%B"),
