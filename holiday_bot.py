@@ -55,7 +55,7 @@ def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, publ
 	total_days_off = (end_date - start_date).days + 1
 
 	explanation = (
-		f"Take {working_days_needed} leave days from {start_date.strftime('%Y-%m-%d')} to "
+		f"Take {working_days_needed} annual leave days from {start_date.strftime('%Y-%m-%d')} to "
 		f"{end_date.strftime('%Y-%m-%d')} around the {holiday_name} holiday to maximize "
 		f"your vacation to a total of {total_days_off} days off, including weekends and public holidays."
 	)
@@ -70,7 +70,7 @@ def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, publ
 		"explanation":explanation,
 	}
 
-
+#adding all the total days off
 def sort_by_total_days_off(suggestion):
 	return suggestion["total_days_off"]
 
@@ -87,16 +87,21 @@ def generate_vacation_suggestions(leave_days_available, holidays, country_code, 
 		holiday_name = holiday["name"]
 
 
-#short vacation 
 #calculate the start and end date for short vacation
 		for leave_days in [leave_days_available, leave_days_available - 1]:
 			if leave_days > 0:
 				suggestion = suggest_vacation(holiday_date, leave_days, f"{leave_days}-day vacation", holiday_name, public_holidays, max_leave_days)
 				suggestions.append(suggestion)
 
-		
-	#suggestions.sort(key=sort_by_total_days_off, reverse=True)
-	return suggestions[:2]
+		if len(suggestions) == 2:
+			if suggestions[0] != suggestions[1]:
+				return suggestions
+			else:
+				return [suggestions[0]]
+		elif len(suggestions)==1:
+			return [suggestions[0]]
+
+	return []
 	
 def find_alternative_month_with_holiday(holidays, current_month):
 	months_with_holidays = set(datetime.strptime(holiday["date"], "%Y-%m-%d").month for holiday in holidays)
@@ -142,7 +147,8 @@ def create_vacation_plan(leave_days_available, year, country_code, month=None):
 
 			else:
 				return {"message": f"No public holidays found in {datetime(year, month, 1).strftime('%B')} and no alternative month available."}
-		
+
+
 	return {
 		"current_month": datetime(year, month, 1).strftime("%B") if month else None,
 		"suggestions": current_suggestions,

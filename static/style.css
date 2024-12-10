@@ -56,6 +56,7 @@ border-top-left-radius: 20px;
 border-bottom-left-radius: 20px ;
 border-right:1px solid rgba(255, 255, 255, 0.18);
 box-sizing: border-box;
+
 }
 
 /* Right Side */
@@ -76,6 +77,7 @@ box-sizing: border-box;
 display: flex;
 flex-direction: column;
 gap: 15px;
+margin-top: 25px;
 }
 
 .form-group {
@@ -87,13 +89,23 @@ flex-direction: column;
 color: #fff;
 font-weight: bold;
 margin-bottom: 5px;
+margin: 0 50px;
 }
 
 .form-group input {
 padding: 10px;
+width: 70%;
 border: 1px solid #ccc;
-border-radius: 5px;
+border-radius: 16px;
+color: #6c757d;
 font-size: 1rem;
+margin: 0 50px;
+}
+
+.submit-container {
+    text-align: center;
+    margin-top: 40px;
+
 }
 
 .btn {
@@ -107,7 +119,7 @@ font-size: 1rem;
 cursor: pointer;
 text-align: center;
 transition: background-color 0.3s ease;
-margin: 0 auto;
+
 }
 
 .btn:hover {
