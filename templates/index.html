@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vacation Planner</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="header">
+<h1>Vacation Planner</h1>
+</header>
+<main class="container"> 
+<div class="left-side">
+    <form action="/" method="POST" class="form">
+        <div class="form-group">
+            <label for="leave_days_available">Available Annual Leave</label>
+            <input type="text" id="leave_days_available" name="leave_days_available" required>
+        </div>
+        <div class="form-group">
+            <label for="year">Year</label>
+            <input type="text" id="year" name="year" value="2025" required>
+        </div>
+        <div class="form-group">
+            <label for="country_code">Country Code</label>
+            <select id="country_code" name="country_code" required>
+                <option value="" disabled selected>Select your country</option>
+                <option value="GB">United Kingdom (GB)</option>
+                <option value="US">United States (US)</option>
+                <option value="CL">Chile (CL)</option>
+                <option value="JP">Japan (JP)</option>
+                <option value="NZ">New Zealand (NZ)</option>
+                <option value="ES">Spain (ES)</option>
+            </select>
+        </div>
+           
+        <div class="form-group">
+            <label for="month">Month (1-12)</label>
+            <input type="text" id="month" name="month" min="1" max="12">
+        </div>
+         
+
+        <div class="submit-container">
+            <button type="submit" class="btn">Submit</button>
+        </div>
+    </form>
+   
+</div>
+
+<div class="right-side">
+    <section class="results">
+        {% if current_month %}
+        <h2>Vacation Suggestions for {{ current_month }}</h2>
+        <ul>
+            {% for suggestion in current_suggestions %}
+            <li>
+                <strong>{{ suggestion.holiday_name }}</strong><br>
+                {{ suggestion.explanation }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if alternative_month %}
+        <h2>Alternative Suggestions for {{ alternative_month }}</h2>
+        <ul>
+            {% for suggestion in alternative_suggestions %}
+            <li>
+                <strong>{{ suggestion.holiday_name }}</strong><br>
+                {{ suggestion.explanation }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </section>
+</div>
+</main>
+<footer class="footer">
+<p>Vacation Planner by alyasi.</p>
+</footer>
+</body>
+</html>
