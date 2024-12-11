@@ -17,9 +17,7 @@ A web application that helps users maximise their annual leave by suggesting opt
 
 ## How to use 
 
-![interface](gh_asset\interface.png)
-
-
+![interface](gh_asset/interface.png)
 
 - **Enter the Information**
   Provide the month and year for which you want vacation suggestions.
