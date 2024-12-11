@@ -11,6 +11,7 @@ client = AzureOpenAI(
 	azure_endpoint = os.getenv("AZURE_ENDPOINT")
 )
 
+#fetch public holiday for specific year and country 
 
 def get_holidays(year,country_code):
 	url = f"https://date.nager.at/api/v3/PublicHolidays/{year}/{country_code}"
@@ -40,7 +41,8 @@ def calculate_working_days(start, end, holidays):
 	return working_days
 
 
-#create vacation suggestion with start and end date
+#create vacation suggestion based on a holiday and leave days
+#craeted dictionary containing the vacation suggestion details
 def suggest_vacation(holiday_date, leave_days, vacation_type, holiday_name, public_holidays, max_leave_days):
 	start_date = holiday_date - timedelta(days=max_leave_days // 2)
 	end_date = holiday_date + timedelta(days=leave_days // 2)
@@ -101,8 +103,7 @@ def generate_vacation_suggestions(leave_days_available, holidays, country_code, 
 	return suggestions
 
 
-
-	
+#find an alternative month with holidays if no holidays are available in the requested month
 def find_alternative_month_with_holiday(holidays, current_month):
 	months_with_holidays = set(datetime.strptime(holiday["date"], "%Y-%m-%d").month for holiday in holidays)
 	next_month = (current_month % 12) + 1

@@ -17,26 +17,26 @@ A web application that helps users maximise their annual leave by suggesting opt
 
 ## How to use 
 
-![1](C:\Users\Alyasi\AllClassDemo\Public_holiday_api\gh_asset\1.png)
+![interface](gh_asset\interface.png)
 
 
 
 - **Enter the Information**
   Provide the month and year for which you want vacation suggestions.
 
-![screencapture-127-0-0-1-5000-2024-12-10-17_20_12](C:\Users\Alyasi\Documents\Homework\coding\sc-readme\screencapture-127-0-0-1-5000-2024-12-10-17_20_12.png)
+![allinfo](gh_asset/allinfo.png)
 
 - **Submit Your Request**
   After filling out the form, click the **Submit** button.
 
-![screencapture-127-0-0-1-5000-2024-12-10-17_20_29](C:\Users\Alyasi\Documents\Homework\coding\sc-readme\screencapture-127-0-0-1-5000-2024-12-10-17_20_29.png)
+![submit](gh_asset/submit.png)
 
 - **View Suggestions**
   Get two optimised vacation suggestions for the selected month, showing how to maximise your time off.
 
+![alter.png](gh_asset/alter.png)
 
 
-![screencapture-127-0-0-1-5000-2024-12-10-17_24_41](C:\Users\Alyasi\Documents\Homework\coding\sc-readme\screencapture-127-0-0-1-5000-2024-12-10-17_24_41.png)
 
 - **Alternative Recommendations**
   If the selected month has no public holidays, the app will suggest an alternative month. 
